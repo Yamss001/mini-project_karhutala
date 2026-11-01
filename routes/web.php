@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\VolunteerReportController;
+use App\Http\Controllers\CoordinatorReportController;
 
 // Halaman utama
 Route::redirect('/', '/login');
@@ -69,3 +71,50 @@ Route::middleware(['auth', 'role:pelapor'])->group(function () {
     )->name('reports.evidence');
 
 });
+
+// Fitur Relawan Pemantau
+Route::middleware(['auth', 'role:relawan_pemantau'])
+    ->prefix('relawan')
+    ->name('relawan.')
+    ->group(function () {
+
+        Route::get('/reports',
+            [VolunteerReportController::class, 'index']
+        )->name('reports.index');
+
+        Route::get('/reports/{report}',
+            [VolunteerReportController::class, 'show']
+        )->name('reports.show');
+
+        Route::post('/reports/{report}/review',
+            [VolunteerReportController::class, 'review']
+        )->name('reports.review');
+
+        Route::post('/reports/{report}/complete',
+            [VolunteerReportController::class, 'complete']
+        )->name('reports.complete');
+    });
+
+
+// Fitur Koordinator Relawan
+Route::middleware(['auth', 'role:koordinator_relawan'])
+    ->prefix('koordinator')
+    ->name('koordinator.')
+    ->group(function () {
+
+        Route::get('/reports',
+            [CoordinatorReportController::class, 'index']
+        )->name('reports.index');
+
+        Route::get('/reports/{report}',
+            [CoordinatorReportController::class, 'show']
+        )->name('reports.show');
+
+        Route::post('/reports/{report}/forward',
+            [CoordinatorReportController::class, 'forward']
+        )->name('reports.forward');
+
+        Route::post('/reports/{report}/complete',
+            [CoordinatorReportController::class, 'complete']
+        )->name('reports.complete');
+    });

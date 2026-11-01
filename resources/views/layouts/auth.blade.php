@@ -70,6 +70,7 @@
             text-align: center;
         }
     </style>
+    @yield('styles')
 </head>
 
 <body>

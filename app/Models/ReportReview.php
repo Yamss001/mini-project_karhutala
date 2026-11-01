@@ -18,4 +18,11 @@ class ReportReview extends Model
     {
         return $this->belongsTo(User::class, 'reviewer_id');
     }
+    
+    protected function casts(): array
+    {
+        return [
+            'reviewed_at' => 'datetime',
+        ];
+    }
 }

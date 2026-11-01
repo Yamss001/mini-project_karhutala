@@ -18,4 +18,11 @@ class ReportForwarding extends Model
     {
         return $this->belongsTo(User::class, 'coordinator_id');
     }
+
+    protected function casts(): array
+    {
+        return [
+            'forwarded_at' => 'datetime',
+        ];
+    }
 }
