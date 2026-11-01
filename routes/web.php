@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ReportController;
 
 // Halaman utama
 Route::redirect('/', '/login');
@@ -48,3 +49,23 @@ Route::middleware(['auth', 'role:koordinator_relawan'])
     ->get('/koordinator/akses', function () {
         return response('Akses Koordinator Relawan berhasil.');
     })->name('koordinator.akses');
+
+
+Route::middleware(['auth', 'role:pelapor'])->group(function () {
+
+    Route::resource('reports', ReportController::class)
+        ->only([
+            'index',
+            'create',
+            'store',
+            'show',
+            'edit',
+            'update',
+        ]);
+
+    Route::get(
+        '/reports/{report}/evidence',
+        [ReportController::class, 'downloadEvidence']
+    )->name('reports.evidence');
+
+});

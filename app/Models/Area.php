@@ -11,4 +11,7 @@ class Area extends Model
     {
         return $this->hasMany(Report::class, 'area_id');
     }
+    protected $fillable = [
+        'name',
+    ];
 }

@@ -37,4 +37,25 @@ class Report extends Model
     {
         return $this->hasMany(ReportStatusLog::class, 'report_id');
     }
+    
+    protected $fillable = [
+        'area_id',
+        'incident_at',
+        'latitude',
+        'longitude',
+        'condition',
+        'description',
+        'status',
+        'evidence_path',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'incident_at' => 'datetime',
+            'latitude' => 'decimal:7',
+            'longitude' => 'decimal:7',
+        ];
+    }
+
 }
