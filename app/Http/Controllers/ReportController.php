@@ -24,7 +24,7 @@ class ReportController extends Controller
             ->reports()
             ->with('area')
             ->latest()
-            ->paginate(10);
+            ->paginate(5);
 
         return view('reports.index', compact('reports'));
     }

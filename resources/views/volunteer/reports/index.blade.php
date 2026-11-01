@@ -49,6 +49,64 @@
             @endforeach
         </div>
     @endif
+    <hr>
+    
+        <form action="{{ route('relawan.reports.index') }}" method="GET">
+
+            <div class="field">
+                <label for="search">Cari Laporan</label>
+
+                <input
+                    type="search"
+                    name="search"
+                    id="search"
+                    value="{{ request('search') }}"
+                    placeholder="Cari ID, kondisi, deskripsi, atau nama pelapor..."
+                >
+            </div>
+
+            <div class="field">
+                <label for="area_id">Filter Wilayah</label>
+
+                <select name="area_id" id="area_id">
+                    <option value="">Semua Wilayah</option>
+
+                    @foreach (\App\Models\Area::orderBy('name')->get() as $area)
+                        <option
+                            value="{{ $area->id }}"
+                            @selected(request('area_id') == $area->id)
+                        >
+                            {{ $area->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="status">Filter Status</label>
+
+                <select name="status" id="status">
+                    <option value="">Semua Status Aktif</option>
+
+                    <option value="baru"
+                        @selected(request('status') === 'baru')>
+                        Baru
+                    </option>
+
+                    <option value="ditinjau"
+                        @selected(request('status') === 'ditinjau')>
+                        Ditinjau
+                    </option>
+                </select>
+            </div>
+
+            <button type="submit">Cari dan Filter</button>
+
+            <a href="{{ route('relawan.reports.index') }}">
+                Reset Filter
+            </a>
+
+        </form>
 
     <hr>
 
@@ -94,9 +152,7 @@
 
         </div>
 
-        <div style="margin-top: 20px;">
-            {{ $reports->links() }}
-        </div>
+    {{ $reports->links('vendor.pagination.paginate') }}
 
     @endif
 

@@ -47,6 +47,6 @@
 
     @endforelse
 
-    {{ $reports->links() }}
+    {{ $reports->links('vendor.pagination.paginate') }}
 
 @endsection

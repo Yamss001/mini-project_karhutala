@@ -12,18 +12,53 @@ use Illuminate\Http\RedirectResponse;
 
 class CoordinatorReportController extends Controller
 {
-    public function index(): View
+
+    public function index(Request $request): View
     {
         Gate::authorize('viewAny', Report::class);
 
-        $reports = Report::with(['area', 'reporter'])
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'area_id' => ['nullable', 'integer', 'exists:areas,id'],
+            'status' => ['nullable', 'in:baru,ditinjau,diteruskan,selesai'],
+        ]);
+
+        $query = Report::with(['area', 'reporter']);
+
+        $query->when($filters['search'] ?? null, function ($query, $keyword) {
+            $query->where(function ($subQuery) use ($keyword) {
+                $subQuery
+                    ->where('condition', 'like', "%{$keyword}%")
+                    ->orWhere('description', 'like', "%{$keyword}%")
+                    ->orWhereHas('reporter', function ($userQuery) use ($keyword) {
+                        $userQuery->where('name', 'like', "%{$keyword}%");
+                    })
+                    ->orWhereHas('area', function ($areaQuery) use ($keyword) {
+                        $areaQuery->where('name', 'like', "%{$keyword}%");
+                    });
+
+                if (ctype_digit($keyword)) {
+                    $subQuery->orWhere('id', (int) $keyword);
+                }
+            });
+        });
+
+        $query->when($filters['area_id'] ?? null, function ($query, $areaId) {
+            $query->where('area_id', $areaId);
+        });
+
+        $query->when($filters['status'] ?? null, function ($query, $status) {
+            $query->where('status', $status);
+        });
+
+        $reports = $query
             ->latest()
-            ->paginate(10);
+            ->paginate(5)
+            ->withQueryString();
 
         return view('coordinator.reports.index', compact('reports'));
     }
 
-    // Detail laporan
     public function show(Report $report): View
     {
         Gate::authorize('view', $report);

@@ -12,17 +12,51 @@ use Illuminate\Http\RedirectResponse;
 
 class VolunteerReportController extends Controller
 {
-    public function index(): View
+
+    public function index(Request $request): View
     {
         Gate::authorize('viewAny', Report::class);
 
-        $reports = Report::with(['area', 'reporter'])
-            ->whereIn('status', ['baru', 'ditinjau'])
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'area_id' => ['nullable', 'integer', 'exists:areas,id'],
+            'status' => ['nullable', 'in:baru,ditinjau'],
+        ]);
+
+        $query = Report::with(['area', 'reporter'])
+            ->whereIn('status', ['baru', 'ditinjau']);
+
+        $query->when($filters['search'] ?? null, function ($query, $keyword) {
+            $query->where(function ($subQuery) use ($keyword) {
+                $subQuery
+                    ->where('condition', 'like', "%{$keyword}%")
+                    ->orWhere('description', 'like', "%{$keyword}%")
+                    ->orWhereHas('reporter', function ($userQuery) use ($keyword) {
+                        $userQuery->where('name', 'like', "%{$keyword}%");
+                    });
+
+                if (ctype_digit($keyword)) {
+                    $subQuery->orWhere('id', (int) $keyword);
+                }
+            });
+        });
+
+        $query->when($filters['area_id'] ?? null, function ($query, $areaId) {
+            $query->where('area_id', $areaId);
+        });
+
+        $query->when($filters['status'] ?? null, function ($query, $status) {
+            $query->where('status', $status);
+        });
+
+        $reports = $query
             ->latest()
-            ->paginate(10);
+            ->paginate(5)
+            ->withQueryString();
 
         return view('volunteer.reports.index', compact('reports'));
     }
+
 
     public function show(Report $report): View
     {
