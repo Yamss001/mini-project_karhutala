@@ -5,6 +5,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\VolunteerReportController;
 use App\Http\Controllers\CoordinatorReportController;
+use App\Http\Controllers\AreaReportController;
+use App\Models\Area;
 
 // Halaman utama
 Route::redirect('/', '/login');
@@ -31,7 +33,9 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        $areas = Area::orderBy('name')->get();
+
+        return view('dashboard', compact('areas'));
     })->name('dashboard');
 
     Route::post('/logout', [AuthController::class, 'logout'])
@@ -118,3 +122,11 @@ Route::middleware(['auth', 'role:koordinator_relawan'])
             [CoordinatorReportController::class, 'complete']
         )->name('reports.complete');
     });
+
+// Informasi laporan aktif berdasarkan wilayah
+Route::get(
+    '/areas/{area}/active-reports',
+    [AreaReportController::class, 'activeReports']
+)
+    ->middleware('auth')
+    ->name('areas.active-reports');
