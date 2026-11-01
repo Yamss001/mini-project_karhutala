@@ -30,7 +30,7 @@
 
 @section('content')
 
-    <h1>Monitoring Laporan Karhutla</h1>
+    <h1>Monitoring Laporan Karhutala</h1>
 
     <p>
         Halaman pemantauan untuk Koordinator Relawan.

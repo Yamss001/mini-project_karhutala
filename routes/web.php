@@ -7,6 +7,8 @@ use App\Http\Controllers\VolunteerReportController;
 use App\Http\Controllers\CoordinatorReportController;
 use App\Http\Controllers\AreaReportController;
 use App\Models\Area;
+use App\Http\Controllers\ReportRecapController;
+use App\Http\Controllers\DashboardController;
 
 // Halaman utama
 Route::redirect('/', '/login');
@@ -32,11 +34,9 @@ Route::middleware('guest')->group(function () {
 // Halaman yang membutuhkan login
 Route::middleware('auth')->group(function () {
 
-    Route::get('/dashboard', function () {
-        $areas = Area::orderBy('name')->get();
-
-        return view('dashboard', compact('areas'));
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->middleware('auth')
+        ->name('dashboard');
 
     Route::post('/logout', [AuthController::class, 'logout'])
         ->name('logout');
@@ -130,3 +130,14 @@ Route::get(
 )
     ->middleware('auth')
     ->name('areas.active-reports');
+
+// Rekap laporan untuk Relawan dan Koordinator
+Route::middleware([
+    'auth',
+    'role:relawan_pemantau,koordinator_relawan'
+])->group(function () {
+
+    Route::get('/rekap', [ReportRecapController::class, 'index'])
+        ->name('recap.index');
+
+});
