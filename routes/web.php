@@ -35,3 +35,16 @@ Route::middleware('auth')->group(function () {
         ->name('logout');
 
 });
+
+// Akses khusus Relawan Pemantau
+Route::middleware(['auth', 'role:relawan_pemantau'])
+    ->get('/relawan/akses', function () {
+        return response('Akses Relawan Pemantau berhasil.');
+    })->name('relawan.akses');
+
+
+// Akses khusus Koordinator Relawan
+Route::middleware(['auth', 'role:koordinator_relawan'])
+    ->get('/koordinator/akses', function () {
+        return response('Akses Koordinator Relawan berhasil.');
+    })->name('koordinator.akses');
